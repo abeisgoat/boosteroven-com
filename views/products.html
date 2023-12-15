@@ -6,10 +6,22 @@
 
     {{if eq .config.Minimal false}}
     <div section horizontal class="two-spots">
-        <input type="text" placeholder="Search Products" class="flex-1"/>
+        <input id="search" type="text"
+               placeholder="Search Products"
+               class="flex-1"
+               value="{{.config.Query}}"
+                />
         <div button-group>
-            <button>Lookup</button>
+            <button id="lookup" href="/">Lookup</button>
         </div>
+        <script>
+            document.querySelector("#search").addEventListener("keyup", (e) => {
+                document.querySelector('#lookup').setAttribute('href', '/search?q=' + e.target.value);
+                if (e.keyCode === 13) {
+                    document.querySelector("#lookup").click();
+                }
+            });
+        </script>
     </div>
 
     <div section>
@@ -29,7 +41,7 @@
         {{range $product := .products}}
         <div item>
             {{if eq $.config.Dated true}}
-                <div timestamp>{{$product.Updated | toTimeAgo}}</div>
+                <div timestamp>{{$product.Created | toTimeAgo}}</div>
             {{end}}
             <div img style="background-image: url('/api/files/products/{{ $product.Id }}/{{ $product.Image }}?thumb=400x400')"></div>
             <div name>{{$product.Name}}</div>

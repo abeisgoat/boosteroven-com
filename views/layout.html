@@ -304,10 +304,12 @@
     </footer>
     <script>
         let pathname = document.location.pathname;
-        if (document.location.pathname == "/") {
+        if (document.location.pathname === "/") {
             pathname = "/sort/top"
         }
-        document.querySelector(`[href="${pathname}"]`).classList.add("active");
+
+        const tab = document.querySelector(`[href="${pathname}"]`);
+        tab && tab.classList.add("active");
 
         [...document.querySelectorAll("button[href]")].forEach(el => {el.addEventListener("click", (e) => {
             console.log(e);

@@ -123,6 +123,7 @@ func toTagList(tagStr string) []Tag {
 type PageProductConfig struct {
 	Minimal   bool
 	Dated     bool
+	Query     string
 	Filenames []string
 }
 
@@ -223,19 +224,25 @@ func main() {
 			query := c.QueryParam("q")
 			var products []Product
 
+			code := strings.ToUpper(query)
 			err := app.Dao().DB().
 				Select("*").
 				From("products").
-				Where(dbx.NewExp("shortcode = {:code}", dbx.Params{"code": query})).
-				OrWhere(dbx.NewExp("name LIKE {:query}", dbx.Params{"query": query})).
+				Where(dbx.NewExp("shortcode = {:code}", dbx.Params{"code": code})).
+				OrWhere(dbx.NewExp("name LIKE {:query}", dbx.Params{"query": "%" + query + "%"})).
 				All(&products)
 
 			if err != nil {
 				panic(err)
 			}
 
-			log.Printf("%+v", products)
-			return c.HTML(http.StatusOK, "Ok!")
+			config := PageProductConfig{
+				Filenames: []string{},
+				Minimal:   false,
+				Dated:     false,
+				Query:     query,
+			}
+			return c.HTML(http.StatusOK, pageProduct(products, config))
 		})
 
 		e.Router.GET("/", func(c echo.Context) error {

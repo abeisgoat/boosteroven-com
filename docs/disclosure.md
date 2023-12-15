@@ -6,3 +6,7 @@ when a purchase is made.
 Products for which paid sponsorship has been provided will be tagged "Sponsored".
 
 &nbsp;
+
+[Back](/)
+
+&nbsp;
