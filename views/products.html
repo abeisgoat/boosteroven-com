@@ -1,0 +1,49 @@
+{{define "title"}}
+    S-Tier Tinkerer Tech - BoosterOven
+{{end}}
+
+{{define "content"}}
+
+    {{if eq .config.Minimal false}}
+    <div section horizontal class="two-spots">
+        <input type="text" placeholder="Search Products" class="flex-1"/>
+        <div button-group>
+            <button>Lookup</button>
+        </div>
+    </div>
+
+    <div section>
+        <div tag-group radio>
+            {{range $id, $tag := .tags}}
+                {{if ne $tag.Name "affiliate"}}
+                    <a href="/tags/{{$tag.Name}}" tag action style="--tag-color:{{$tag.Color}}">{{$tag.Name}}</a>
+                {{end}}
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+
+    {{ block "highlight" . }}{{end}}
+
+    <div section grid>
+        {{range $product := .products}}
+        <div item>
+            {{if eq $.config.Dated true}}
+                <div timestamp>{{$product.Updated | toTimeAgo}}</div>
+            {{end}}
+            <div img style="background-image: url('/api/files/products/{{ $product.Id }}/{{ $product.Image }}?thumb=400x400')"></div>
+            <div name>{{$product.Name}}</div>
+            <button href="/link/{{$product.Id}}">
+                {{(index $.merchants $product.MerchantId).Label}}
+            </button>
+            <div tag-group>
+            {{range $tag := ($product.Tags | toTagList)}}
+                {{if ne $tag.Name "affiliate"}}
+                    <a tag href="/tags/{{$tag.Name}}" style="background-color: {{$tag.Color}}">{{$tag.Name}}</a>
+                {{end}}
+            {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+{{end}}

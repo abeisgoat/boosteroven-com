@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{block "title" .}}404{{end}} - BoosterOven</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=750, initial-scale=1" />
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                    'FILL' 0,
+                    'wght' 400,
+                    'GRAD' 0,
+                    'opsz' 24
+        }
+
+        :root {
+            --theme-color: #bbd0fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #F1F2F4;
+            font-family: 'Roboto', sans-serif;
+            padding: 0px;
+            margin: 0px;
+            min-width: 750px;
+        }
+
+        main {
+            background-color: #FFFFFF;
+            border-radius: 6px;
+            max-width: 1024px;
+            margin: 0 auto;
+            box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-areas: "tabs" "content";
+        }
+
+        header {
+            display: grid;
+            padding: 16px 16px 0px 16px;
+            width: 1024px;
+            grid-template-areas: "logo tabs";
+            margin: 0 auto;
+        }
+        header img {
+            height:80px;
+            grid-area: content;
+            position: relative;
+            top: -5px;
+        }
+
+        footer {
+            font-size: 0.9em;
+            text-align: center;
+            padding:16px;
+            opacity: 1;
+        }
+
+        footer a {
+            color: black;
+        }
+
+        footer [light] {
+            margin: 8px 0px 16px 0px;
+            opacity: 0.5;
+        }
+
+        [tab-group] {
+            justify-self: end;
+            display: flex;
+        }
+
+        [tab] {
+            display: grid;
+            align-self: end;
+            padding: 10px;
+            color: black;
+            text-decoration: none;
+
+            margin: 0px 4px;
+            background-color: white;
+            box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 3px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid white;
+            border-radius: 5px 5px 0px 0px;
+            opacity: 0.5;
+            cursor: pointer;
+            grid-template-areas: "icon word";
+            gap: 6px;
+            align-items: center;
+
+        }
+
+        [tab] svg {
+            height: 24px;
+        }
+        [tab]:hover {
+            opacity: 1;
+        }
+
+        [tab].active {
+            box-shadow: rgba(0, 0, 0, 0.1) 1px -1px 2px;
+            opacity: 1;
+            z-index: 2;
+            position: relative;
+            top: 1px;
+            padding-bottom: 10px;
+        }
+
+        [content] {
+            padding: 16px;
+        }
+
+        [section] {
+            margin-bottom: 16px;
+        }
+        [section]:last-of-type {
+            margin-bottom: 0px;
+        }
+
+        [section][horizontal] {
+            display: flex;
+            gap: 0px 8px;
+        }
+
+        [section][highlight] {
+            background-color: var(--theme-color);
+            border-radius:5px;
+            padding: 30px;
+
+            background-image:url("/assets/channel-704x704-upscaled.png");
+            background-size: 200px;
+            background-repeat: no-repeat;
+            background-position: center right;
+        }
+        [section][highlight] a {
+            font-size: 0.9em;
+            font-weight: bold;
+            text-decoration: underline;
+            color: black;
+        }
+
+        [section][grid] {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        input[type=text] {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-top-width: 2px;
+            border-radius: 3px;
+            height: 30px;
+            padding: 0px 8px;
+            font-size: 1em;
+        }
+
+        [button-group] {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            height: 30px;
+        }
+        button {
+            height: 28px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            background-color: white;
+            border-right-width: 0px;
+            cursor: pointer;
+            padding: 0px 10px;
+        }
+        button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        button:first-of-type {
+            border-radius: 3px 0px 0px 3px;
+        }
+        button:last-of-type {
+            border-radius: 0px 3px 3px 0px;
+            border-right-width: 1px;
+        }
+
+        p {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        [item] {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 232px;
+        }
+
+        [item] [timestamp] {
+            opacity: 0.6;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            padding: 5px;
+            justify-self: start;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        [item] [name] {
+            font-size: 1.1em;
+            flex: 1;
+        }
+
+        [item] [img] {
+            width: 200px;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+        }
+
+        [tag-group] {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            gap: 5px;
+        }
+
+        [tag-group][radio] [tag] {
+            background-color: rgba(0,0,0,0);
+            border: 2px solid var(--tag-color);
+            color: var(--tag-color);
+        }
+
+        [tag-group][radio] [tag].active {
+            background-color: var(--tag-color);
+            color: white;
+        }
+
+        [tag-group] [tag] {
+            padding: 2px 4px;
+            font-size: 0.8em;
+            color: white;
+            border-radius: 3px;
+            background-color: var(--tag-color);
+        }
+
+        [tag-group] [tag]:not(.active):hover {
+            opacity: 0.8;
+            text-decoration: underline;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        [tag-group] [tag][action] {
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/"><img src="/assets/boosteroven_small.png"/></a>
+        <div tab-group>
+            <a tab href="/sort/top"
+            {{if eq .path "/sort/top"}}
+            class="active"
+            {{end}}
+            >
+                {{"favorite" | toIcon}} Popular
+            </a>
+            <a tab href="/sort/new"
+            {{if eq .path "/sort/new"}}
+            class="active"
+            {{end}}>
+                {{"calendar" | toIcon}} Newest
+            </a>
+        </div>
+    </header>
+    <main>
+        <div content>
+                {{block "content" .}}404{{end}}
+        </div>
+    </main>
+
+    <footer>
+        <a href="/sort/top">Featured</a> | <a href="/sort/new">Newest</a> | <a href="/docs/disclosure">Disclosure</a>
+        <div light>
+    BoosterOven.com © Abe Haskins 2023<br />
+    Images, product names, and brands used with permission.
+        </div>
+    </footer>
+    <script>
+        let pathname = document.location.pathname;
+        if (document.location.pathname == "/") {
+            pathname = "/sort/top"
+        }
+        document.querySelector(`[href="${pathname}"]`).classList.add("active");
+
+        [...document.querySelectorAll("button[href]")].forEach(el => {el.addEventListener("click", (e) => {
+            console.log(e);
+            document.location = e.target.getAttribute("href");
+        })});
+    </script>
+</body>
+</html>
