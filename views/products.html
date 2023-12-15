@@ -7,12 +7,12 @@
     {{if eq .config.Minimal false}}
     <div section horizontal class="two-spots">
         <input id="search" type="text"
-               placeholder="Search Products"
+               placeholder="Search Products and Links"
                class="flex-1"
                value="{{.config.Query}}"
                 />
         <div button-group>
-            <button id="lookup" href="/">Lookup</button>
+            <button id="lookup" href="/">Search</button>
         </div>
         <script>
             document.querySelector("#search").addEventListener("keyup", (e) => {
