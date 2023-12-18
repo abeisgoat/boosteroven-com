@@ -316,13 +316,18 @@
             pathname = "/sort/top"
         }
 
-        const tab = document.querySelector(`[href="${pathname}"]`);
-        tab && tab.classList.add("active");
+        const indicator = document.querySelector(`[href="${pathname}"]`);
+        indicator && indicator.classList.add("active");
 
-        [...document.querySelectorAll("button[href]")].forEach(el => {el.addEventListener("click", (e) => {
-            console.log(e);
-            document.location = e.target.getAttribute("href");
-        })});
+        const tag = document.querySelector(`[tag][href="${pathname}"]`);
+        tag && tag.setAttribute("href", "/");
+
+        [...document.querySelectorAll("button[href]")].forEach(el => {
+            el.addEventListener("click", (e) => {
+                const href = e.target.getAttribute("href");
+                document.location = href;
+            })
+        });
     </script>
 </body>
 </html>

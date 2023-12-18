@@ -43,24 +43,28 @@
     {{ block "highlight" . }}{{end}}
 
     <div section grid>
-        {{range $product := .products}}
-        <div item>
-            {{if eq $.config.Dated true}}
-                <div timestamp>{{$product.Created | toTimeAgo}}</div>
-            {{end}}
-            <div img style="background-image: url('/api/files/products/{{ $product.Id }}/{{ $product.Image }}?thumb=400x400')"></div>
-            <div name>{{$product.Name}}</div>
-            <button href="/link/{{$product.Id}}">
-                {{(index $.merchants $product.MerchantId).Label}}
-            </button>
-            <div tag-group>
-            {{range $tag := ($product.Tags | toTagList)}}
-                {{if ne $tag.Name "affiliate"}}
-                    <a tag href="/tags/{{$tag.Name}}" style="background-color: {{$tag.Color}}">{{$tag.Name}}</a>
+        {{if .products}}
+            {{range $product := .products}}
+            <div item>
+                {{if eq $.config.Dated true}}
+                    <div timestamp>{{$product.Created | toTimeAgo}}</div>
                 {{end}}
-            {{end}}
+                <div img style="background-image: url('/api/files/products/{{ $product.Id }}/{{ $product.Image }}?thumb=400x400')"></div>
+                <div name>{{$product.Name}}</div>
+                <button href="/link/{{$product.Id}}">
+                    {{(index $.merchants $product.MerchantId).Label}}
+                </button>
+                <div tag-group>
+                {{range $tag := ($product.Tags | toTagList)}}
+                    {{if ne $tag.Name "affiliate"}}
+                        <a tag href="/tags/{{$tag.Name}}" style="background-color: {{$tag.Color}}">{{$tag.Name}}</a>
+                    {{end}}
+                {{end}}
+                </div>
             </div>
-        </div>
+            {{end}}
+        {{else}}
+            <h3>No products found.</h3>
         {{end}}
     </div>
 {{end}}

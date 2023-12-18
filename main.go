@@ -325,10 +325,12 @@ func main() {
 			}
 
 			config := PageProductConfig{
-				Filenames: []string{},
-				Minimal:   false,
-				Dated:     false,
-				Query:     query,
+				Filenames: []string{
+					"views/highlight_search.html",
+				},
+				Minimal: false,
+				Dated:   false,
+				Query:   query,
 			}
 			return c.HTML(http.StatusOK, pageProduct(products, config))
 		})
