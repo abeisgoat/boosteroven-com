@@ -3,6 +3,8 @@ module boosteroven.com
 go 1.21
 
 require (
+	github.com/dustin/go-humanize v1.0.1
+	github.com/gorilla/feeds v1.1.2
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
 	github.com/pocketbase/dbx v1.10.1
 	github.com/pocketbase/pocketbase v0.20.0
@@ -34,7 +36,6 @@ require (
 	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/ganigeorgiev/fexpr v0.4.0 // indirect

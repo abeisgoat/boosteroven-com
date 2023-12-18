@@ -3,16 +3,20 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/dustin/go-humanize"
+	"github.com/gorilla/feeds"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/cron"
 	"github.com/pocketbase/pocketbase/tools/template"
 	"github.com/yuin/goldmark"
 	gtemplate "html/template"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -54,15 +58,15 @@ type Tag struct {
 }
 
 type Product struct {
-	Id           string `db:"id"`
-	Name         string `db:"name"`
-	Image        string `db:"image"`
-	Url          string `db:"url"`
-	MerchantId   string `db:"merchant"`
-	Tags         string `db:"tags"`
-	Interactions int    `db:"interactions"`
-	Updated      string `db:"updated"`
-	Created      string `db:"created"`
+	Id           string  `db:"id"`
+	Name         string  `db:"name"`
+	Image        string  `db:"image"`
+	Url          string  `db:"url"`
+	MerchantId   string  `db:"merchant"`
+	Tags         string  `db:"tags"`
+	Interactions float32 `db:"interactions"`
+	Updated      string  `db:"updated"`
+	Created      string  `db:"created"`
 }
 
 var tags = make(map[string]Tag)
@@ -120,6 +124,10 @@ func toTagList(tagStr string) []Tag {
 	return tagStructList
 }
 
+func roundTo(n float64, decimals uint32) float64 {
+	return math.Round(n*math.Pow(10, float64(decimals))) / math.Pow(10, float64(decimals))
+}
+
 type PageProductConfig struct {
 	Minimal   bool
 	Dated     bool
@@ -166,6 +174,37 @@ func pageProduct(products []Product, config PageProductConfig) string {
 
 func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		scheduler := cron.New()
+		scheduler.MustAdd("hello", "0 0 * * *", func() {
+			var products []Product
+
+			err := app.Dao().DB().
+				Select("*").
+				From("products").
+				All(&products)
+
+			if err != nil {
+				panic(err)
+			}
+
+			for _, product := range products {
+
+				_, err = app.Dao().
+					DB().
+					Update("products",
+						dbx.Params{"interactions": roundTo(float64(product.Interactions*0.9), 2)},
+						dbx.NewExp("id = {:id}",
+							dbx.Params{"id": product.Id})).Execute()
+
+				if err != nil {
+					print(err)
+				}
+			}
+
+			fmt.Printf("Drop score of %d products\n", len(products))
+		})
+		scheduler.Start()
+
 		e.Router.Use(registryMiddleware)
 		e.Router.GET("/assets/*", apis.StaticDirectoryHandler(os.DirFS("./assets"), false))
 
@@ -190,6 +229,55 @@ func main() {
 			}
 
 			return c.HTML(http.StatusOK, html)
+		})
+
+		e.Router.GET("/rss/:feed", func(c echo.Context) error {
+			feedId := c.PathParam("feed")
+
+			if feedId != "products/new" {
+				return apis.NewNotFoundError("", nil)
+			}
+
+			now := time.Now()
+			feed := &feeds.Feed{
+				Title:       "BoosterOven.com New Products",
+				Link:        &feeds.Link{Href: "https://boosteroven.com/sort/new"},
+				Description: "All the new S-Tier Tinkerer Tech added to BoosterOven.com",
+				Author:      &feeds.Author{Name: "Abe Haskins", Email: "abeisgreat@abeisgreat.com"},
+				Created:     now,
+			}
+
+			var products []Product
+
+			err := app.Dao().DB().
+				Select("*").
+				From("products").
+				OrderBy("created DESC").
+				Limit(20).
+				All(&products)
+
+			if err != nil {
+				panic(err)
+			}
+
+			for _, product := range products {
+				created, _ := time.Parse(layout, product.Created)
+				feed.Items = append(feed.Items, &feeds.Item{
+					Title:       product.Name,
+					Id:          product.Id,
+					Link:        &feeds.Link{Href: "https://boosteroven.com/links/" + product.Id},
+					Description: "New item added: " + product.Name,
+					Author:      &feeds.Author{Name: "Abraham Haskins", Email: "abeisgreat@abeisgreat.com"},
+					Created:     created,
+				})
+			}
+
+			rss, err := feed.ToRss()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			return c.String(http.StatusOK, rss)
 		})
 
 		e.Router.GET("/link/:productId", func(c echo.Context) error {
