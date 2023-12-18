@@ -265,7 +265,7 @@ func main() {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       product.Name,
 					Id:          product.Id,
-					Link:        &feeds.Link{Href: "https://boosteroven.com/links/" + product.Id},
+					Link:        &feeds.Link{Href: "https://boosteroven.com/link/" + product.Id},
 					Description: "New item added: " + product.Name,
 					Author:      &feeds.Author{Name: "Abraham Haskins", Email: "abeisgreat@abeisgreat.com"},
 					Created:     created,
