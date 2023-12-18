@@ -15,12 +15,17 @@
             <button id="lookup" href="/">Search</button>
         </div>
         <script>
-            document.querySelector("#search").addEventListener("keyup", (e) => {
+            function updateSearch(e) {
                 document.querySelector('#lookup').setAttribute('href', '/search?q=' + e.target.value);
                 if (e.keyCode === 13) {
                     document.querySelector("#lookup").click();
                 }
-            });
+            }
+            const searchbox = document.querySelector("#search");
+            searchbox.addEventListener("keydown", updateSearch);
+            searchbox.addEventListener("keyup", updateSearch);
+            searchbox.addEventListener("change", updateSearch);
+            searchbox.addEventListener("focusout", updateSearch);
         </script>
     </div>
 
