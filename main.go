@@ -65,6 +65,8 @@ type Product struct {
 	MerchantId   string  `db:"merchant"`
 	Tags         string  `db:"tags"`
 	Interactions float32 `db:"interactions"`
+	InteractionsWeekly float32 `db:"interactions_weekly"`
+        InteractionsDaily float32 `db:"interactions_daily"`
 	Updated      string  `db:"updated"`
 	Created      string  `db:"created"`
 }
@@ -175,7 +177,7 @@ func pageProduct(products []Product, config PageProductConfig) string {
 func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		scheduler := cron.New()
-		scheduler.MustAdd("hello", "0 0 * * *", func() {
+		scheduler.MustAdd("nightly", "0 0 * * *", func() {
 			var products []Product
 
 			err := app.Dao().DB().
@@ -192,7 +194,10 @@ func main() {
 				_, err = app.Dao().
 					DB().
 					Update("products",
-						dbx.Params{"interactions": roundTo(float64(product.Interactions*0.9), 2)},
+						dbx.Params{
+							"interactions_weekly": roundTo(float64(product.InteractionsWeekly*0.9), 2),
+							"interactions_daily": roundTo(float64(product.InteractionsDaily*0.5), 2),
+						},
 						dbx.NewExp("id = {:id}",
 							dbx.Params{"id": product.Id})).Execute()
 
@@ -297,7 +302,7 @@ func main() {
 			_, err = app.Dao().
 				DB().
 				Update("products",
-					dbx.Params{"interactions": product.Interactions + 1},
+					dbx.Params{"interactions": product.Interactions + 1, "interactions_weekly": product.InteractionsWeekly + 1, "interactions_daily": product.InteractionsDaily + 1},
 					dbx.NewExp("id = {:id}",
 						dbx.Params{"id": productId})).Execute()
 
@@ -340,7 +345,7 @@ func main() {
 
 			err := app.Dao().DB().
 				Select("*").
-				From("products").OrderBy("interactions DESC").All(&products)
+				From("products").OrderBy("interactions_daily DESC").All(&products)
 
 			if err != nil {
 				panic(err)
@@ -369,7 +374,7 @@ func main() {
 			}
 
 			if criteria == "top" {
-				query = query.OrderBy("interactions DESC")
+				query = query.OrderBy("interactions_daily DESC")
 				config.Filenames = []string{
 					"views/highlight_top.html",
 				}
