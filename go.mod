@@ -8,6 +8,7 @@ require (
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
 	github.com/pocketbase/dbx v1.10.1
 	github.com/pocketbase/pocketbase v0.20.0
+	github.com/posthog/posthog-go v0.0.0-20230801140217-d607812dee69
 	github.com/yuin/goldmark v1.4.13
 )
 
