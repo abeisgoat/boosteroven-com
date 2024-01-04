@@ -13,6 +13,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/cron"
 	"github.com/pocketbase/pocketbase/tools/template"
+	"github.com/posthog/posthog-go"
 	"github.com/yuin/goldmark"
 	gtemplate "html/template"
 	"log"
@@ -58,17 +59,17 @@ type Tag struct {
 }
 
 type Product struct {
-	Id           string  `db:"id"`
-	Name         string  `db:"name"`
-	Image        string  `db:"image"`
-	Url          string  `db:"url"`
-	MerchantId   string  `db:"merchant"`
-	Tags         string  `db:"tags"`
-	Interactions float32 `db:"interactions"`
+	Id                 string  `db:"id"`
+	Name               string  `db:"name"`
+	Image              string  `db:"image"`
+	Url                string  `db:"url"`
+	MerchantId         string  `db:"merchant"`
+	Tags               string  `db:"tags"`
+	Interactions       float32 `db:"interactions"`
 	InteractionsWeekly float32 `db:"interactions_weekly"`
-        InteractionsDaily float32 `db:"interactions_daily"`
-	Updated      string  `db:"updated"`
-	Created      string  `db:"created"`
+	InteractionsDaily  float32 `db:"interactions_daily"`
+	Updated            string  `db:"updated"`
+	Created            string  `db:"created"`
 }
 
 var tags = make(map[string]Tag)
@@ -165,6 +166,7 @@ func pageProduct(products []Product, config PageProductConfig) string {
 		"merchants": merchants,
 		"tags":      tags,
 		"config":    config,
+		"site":  siteConfig,
 	})
 
 	if err != nil {
@@ -174,7 +176,24 @@ func pageProduct(products []Product, config PageProductConfig) string {
 	return html
 }
 
+type SiteConfig struct {
+	PosthogAPIKey string
+}
+
+var siteConfig = SiteConfig{
+	PosthogAPIKey: os.Getenv("POSTHOG_API_KEY"),
+}
+
 func main() {
+
+
+	if siteConfig.PosthogAPIKey == "" {
+		panic("POSTHOG_API_KEY is required.")
+	}
+
+	client := posthog.New(siteConfig.PosthogAPIKey)
+	defer client.Close()
+
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		scheduler := cron.New()
 		scheduler.MustAdd("nightly", "0 0 * * *", func() {
@@ -196,7 +215,7 @@ func main() {
 					Update("products",
 						dbx.Params{
 							"interactions_weekly": roundTo(float64(product.InteractionsWeekly*0.9), 2),
-							"interactions_daily": roundTo(float64(product.InteractionsDaily*0.5), 2),
+							"interactions_daily":  roundTo(float64(product.InteractionsDaily*0.5), 2),
 						},
 						dbx.NewExp("id = {:id}",
 							dbx.Params{"id": product.Id})).Execute()
@@ -226,6 +245,7 @@ func main() {
 				"views/layout.html",
 				"views/markdown.html",
 			).Render(map[string]any{
+				"site":  siteConfig,
 				"markdown": string(buf),
 			})
 
