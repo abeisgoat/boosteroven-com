@@ -51,7 +51,11 @@
                 {{end}}
                 <div img style="background-image: url('/api/files/products/{{ $product.Id }}/{{ $product.Image }}?thumb=400x400')"></div>
                 <div name>{{$product.Name}}</div>
-                <button href="/link/{{$product.Id}}">
+                <button href="/link/{{$product.Id}}"
+                data-ph-capture-attribute-product-id="{{$product.Id}}"
+                data-ph-capture-attribute-product-name="{{$product.Name}}"
+                data-ph-capture-attribute-product-merchant="{{(index $.merchants $product.MerchantId).Name}}"
+                >
                     {{(index $.merchants $product.MerchantId).Label}}
                 </button>
                 <div tag-group>
