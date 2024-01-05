@@ -13,6 +13,7 @@ seperate from the `pb_data` checked into this repo which is development data and
 data.
 
 Place the following service config at `/lib/systemd/system/boosteroven.service` to enable restarting, etc.
+You will need to ensure the `Environment` field is set with any env variables outlined above.
 
 ```
 [Unit]
@@ -28,6 +29,7 @@ RestartSec     = 5s
 StandardOutput = append:/home/abeisgreat/boosteroven-com/errors.log
 StandardError  = append:/home/abeisgreat/boosteroven-com/errors.log
 WorkingDirectory = /home/abeisgreat/boosteroven-com/
+Environment    = "POSTHOG_API_KEY=..."
 ExecStart      = /home/abeisgreat/boosteroven.com serve boosteroven.com --dir="/home/abeisgreat/pb_data"
 
 [Install]

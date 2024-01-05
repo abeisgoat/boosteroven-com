@@ -138,7 +138,11 @@ type PageProductConfig struct {
 	Filenames []string
 }
 
-func pageProduct(products []Product, config PageProductConfig) string {
+type PageConfig struct {
+	Title string
+}
+
+func pageProduct(pageConfig PageConfig, products []Product, config PageProductConfig) string {
 	for _, product := range products {
 		toTimeAgo(product.Updated)
 		merchant := merchants[product.MerchantId]
@@ -167,6 +171,7 @@ func pageProduct(products []Product, config PageProductConfig) string {
 		"tags":      tags,
 		"config":    config,
 		"site":  siteConfig,
+		"page": pageConfig,
 	})
 
 	if err != nil {
@@ -187,7 +192,7 @@ var siteConfig = SiteConfig{
 func main() {
 
 
-	if siteConfig.PosthogAPIKey == "" {
+	if siteConfig.PosthogAPIKey == "" || siteConfig.PosthogAPIKey == "..." {
 		panic("POSTHOG_API_KEY is required.")
 	}
 
@@ -241,12 +246,17 @@ func main() {
 				panic(err)
 			}
 
+			page := PageConfig{
+				Title: "Disclosure & Affiliations",
+			}
+
 			html, err := registry.LoadFiles(
 				"views/layout.html",
 				"views/markdown.html",
 			).Render(map[string]any{
 				"site":  siteConfig,
 				"markdown": string(buf),
+				"page": page,
 			})
 
 			if err != nil {
@@ -357,7 +367,12 @@ func main() {
 				Dated:   false,
 				Query:   query,
 			}
-			return c.HTML(http.StatusOK, pageProduct(products, config))
+
+			page := PageConfig{
+				Title: "Search Results",
+			}
+
+			return c.HTML(http.StatusOK, pageProduct(page, products, config))
 		})
 
 		e.Router.GET("/", func(c echo.Context) error {
@@ -376,7 +391,10 @@ func main() {
 				Minimal:   false,
 				Dated:     false,
 			}
-			return c.HTML(http.StatusOK, pageProduct(products, config))
+			page := PageConfig{
+				Title: "S-Tier Tinkerer Tech",
+			}
+			return c.HTML(http.StatusOK, pageProduct(page, products, config))
 		}, apis.ActivityLogger(app))
 
 		e.Router.GET("/sort/:criteria", func(c echo.Context) error {
@@ -393,17 +411,21 @@ func main() {
 				Dated:     false,
 			}
 
+			page := PageConfig {}
+
 			if criteria == "top" {
 				query = query.OrderBy("interactions_daily DESC")
 				config.Filenames = []string{
 					"views/highlight_top.html",
 				}
+				page.Title = "Popular Items"
 			} else if criteria == "new" {
 				query = query.OrderBy("created DESC")
 				config.Minimal = true
 				config.Filenames = []string{
 					"views/highlight_new.html",
 				}
+				page.Title = "Newest Items"
 				config.Dated = true
 			}
 
@@ -413,7 +435,7 @@ func main() {
 				panic(err)
 			}
 
-			return c.HTML(http.StatusOK, pageProduct(products, config))
+			return c.HTML(http.StatusOK, pageProduct(page, products, config))
 		}, apis.ActivityLogger(app))
 
 		e.Router.GET("/tags/:tagName", func(c echo.Context) error {
@@ -442,7 +464,10 @@ func main() {
 				Minimal:   false,
 				Dated:     false,
 			}
-			return c.HTML(http.StatusOK, pageProduct(products, config))
+			page := PageConfig {
+				Title: "Tag: " + tagName,
+			}
+			return c.HTML(http.StatusOK, pageProduct(page, products, config))
 
 		}, apis.ActivityLogger(app))
 
